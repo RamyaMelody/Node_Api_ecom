@@ -5,6 +5,8 @@ const app = express();
 const MongoClient = require('mongodb');
 const url ='mongodb://localhost:27017';
 
+app.set('PORT',process.env.PORT)
+
 app.use(cors());
 
 app.use(bodyparser.json()) //middle ware 
@@ -109,6 +111,8 @@ app.delete('/delete/:id', function (req, res) {
     })
 })
 
-app.listen(3000, function () {
-    console.log("port is running")
+app.listen(app.get('PORT'), function () {
+    console.log(app.get('PORT'))
 });
+
+
