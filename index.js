@@ -119,7 +119,7 @@ app.post('/register', function (req, res) {
 
     MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
         if (err) throw err;
-        var db = client.db("loginDB");
+        var db = client.db("shopDB");
 
         bcrypt.genSalt(saltRounds, (err, salt) => {
             if (err) throw err;
@@ -146,7 +146,7 @@ app.post('/login', function (req, res) {
     console.log(req.body)
     MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
         if (err) throw err;
-        var db = client.db("loginDB");
+        var db = client.db("shopDB");
         db.collection('users').findOne({ email: req.body.email }, (err, user) => {
             if (err) throw err;
             //console.log(user)
