@@ -1,9 +1,11 @@
 const express = require('express');
 const bodyparser = require('body-parser');
+const bcrypt = require('bcrypt');
 var cors = require('cors')
 const app = express();
 const MongoClient = require('mongodb');
 const url ='mongodb+srv://ramyabtech19:jaisriram@ecomdb-t8ic5.mongodb.net/test?retryWrites=true&w=majority';
+const saltRounds = 10;
 
 app.set('PORT',process.env.PORT)
 
@@ -110,6 +112,67 @@ app.delete('/delete/:id', function (req, res) {
         })
     })
 })
+
+//REGISTER FORM API
+app.post('/register', function (req, res) {
+    console.log(req.body);
+
+    MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
+        if (err) throw err;
+        var db = client.db("loginDB");
+
+        bcrypt.genSalt(saltRounds, (err, salt) => {
+            if (err) throw err;
+
+            bcrypt.hash(req.body.password, salt, (err, hash) => {
+                if (err) throw err;
+
+                db.collection('users').insertOne({ name: req.body.name, email: req.body.email, password: hash, contact: req.body.contact }, (err, result) => {
+                    if (err) throw err;email: req.body.email
+                    client.close();
+
+                    res.json({
+                        message: "success"
+                    })
+                })
+            })
+        })
+
+    })
+
+})
+
+app.post('/login', function (req, res) {
+    console.log(req.body)
+    MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
+        if (err) throw err;
+        var db = client.db("loginDB");
+        db.collection('users').findOne({ email: req.body.email }, (err, user) => {
+            if (err) throw err;
+            //console.log(user)
+            if (!user) {
+                res.json({
+                    message: "Invalid User"
+                })
+            }
+            bcrypt.compare(req.body.password, user.password, (err, result) => {
+                if (err) throw err;
+                if (result) {
+
+                    res.json({
+                        message: "success"
+                    })
+                }
+                else {
+                    res.json({
+                        message: "Incorrect password"
+                    })
+                }
+            })
+        })
+    })
+});
+
 
 app.listen(app.get('PORT'), function () {
     console.log(app.get('PORT'))
